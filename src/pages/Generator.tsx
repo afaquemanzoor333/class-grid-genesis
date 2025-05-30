@@ -130,7 +130,7 @@ const Generator = () => {
               </Button>
               <div className="flex items-center space-x-2">
                 <Calendar className="h-6 w-6 text-blue-600" />
-                <span className="text-lg font-semibold">Timetable Generator</span>
+                <span className="text-lg font-semibold">SMIU Timetable Generator</span>
               </div>
             </div>
             

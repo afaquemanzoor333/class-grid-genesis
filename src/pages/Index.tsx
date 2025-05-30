@@ -61,7 +61,7 @@ const Index = () => {
             <div className="flex items-center space-x-2">
               <Calendar className="h-8 w-8 text-blue-600" />
               <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                EduScheduler
+                SMIU Scheduler
               </span>
             </div>
             <div className="flex items-center space-x-4">
@@ -234,7 +234,7 @@ const Index = () => {
             Ready to Transform Your Scheduling?
           </h2>
           <p className="text-xl text-blue-100 mb-8">
-            Join hundreds of institutions already using EduScheduler for hassle-free timetable generation
+            Join hundreds of institutions already using SMIU Scheduler for hassle-free timetable generation
           </p>
           <Button
             size="lg"
@@ -253,10 +253,10 @@ const Index = () => {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center space-x-2 mb-4 md:mb-0">
               <Calendar className="h-6 w-6 text-blue-400" />
-              <span className="text-lg font-semibold">EduScheduler</span>
+              <span className="text-lg font-semibold">SMIU Scheduler</span>
             </div>
             <div className="text-gray-400">
-              © 2024 EduScheduler. All rights reserved.
+              © 2024 SMIU Scheduler. All rights reserved.
             </div>
           </div>
         </div>
