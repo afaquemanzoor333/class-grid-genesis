@@ -44,7 +44,12 @@ export const useSubjects = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setSubjects(data || []);
+      // Type cast the subject_type to ensure it matches our union type
+      const typedData = (data || []).map(item => ({
+        ...item,
+        subject_type: item.subject_type as 'theory' | 'practical' | 'lab'
+      }));
+      setSubjects(typedData);
     } catch (error: any) {
       toast({
         title: 'Error fetching subjects',
@@ -74,7 +79,12 @@ export const useSubjects = () => {
         .single();
 
       if (error) throw error;
-      setSubjects(prev => [data, ...prev]);
+      // Type cast the returned data
+      const typedData = {
+        ...data,
+        subject_type: data.subject_type as 'theory' | 'practical' | 'lab'
+      };
+      setSubjects(prev => [typedData, ...prev]);
       
       toast({
         title: 'Subject Added',
