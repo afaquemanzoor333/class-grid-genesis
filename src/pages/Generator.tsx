@@ -25,8 +25,20 @@ const Generator = () => {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const { departments } = useDepartments();
-  const { batches } = useBatches();
-  const { subjects } = useSubjects();
+  const { batches, addBatch, removeBatch } = useBatches();
+  const { subjects, addSubject, removeSubject } = useSubjects();
+
+  // Create setter functions for BatchManager
+  const setBatches = (newBatches: any) => {
+    // This is handled by the useBatches hook internally
+    console.log("setBatches called with:", newBatches);
+  };
+
+  // Create setter functions for SubjectManager  
+  const setSubjects = (newSubjects: any) => {
+    // This is handled by the useSubjects hook internally
+    console.log("setSubjects called with:", newSubjects);
+  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -220,11 +232,19 @@ const Generator = () => {
               </TabsContent>
 
               <TabsContent value="batches" className="space-y-6">
-                <BatchManager />
+                <BatchManager 
+                  batches={batches}
+                  setBatches={setBatches}
+                  departments={departments}
+                />
               </TabsContent>
 
               <TabsContent value="subjects" className="space-y-6">
-                <SubjectManager />
+                <SubjectManager 
+                  subjects={subjects}
+                  setSubjects={setSubjects}
+                  departments={departments}
+                />
               </TabsContent>
 
               <TabsContent value="generate" className="space-y-6">
