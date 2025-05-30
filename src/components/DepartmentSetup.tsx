@@ -4,44 +4,38 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, BookOpen } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { Plus, Trash2, BookOpen, Loader2 } from "lucide-react";
+import { useDepartments, Department } from "@/hooks/useDepartments";
 
-export const DepartmentSetup = ({ departments, setDepartments }) => {
+export const DepartmentSetup = () => {
   const [newDepartment, setNewDepartment] = useState({ name: "", code: "", head: "" });
-  const { toast } = useToast();
+  const { departments, loading, addDepartment, removeDepartment } = useDepartments();
 
-  const addDepartment = () => {
+  const handleAddDepartment = async () => {
     if (!newDepartment.name || !newDepartment.code) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in department name and code.",
-        variant: "destructive",
-      });
       return;
     }
 
-    const department = {
-      id: Date.now(),
-      ...newDepartment,
-    };
-
-    setDepartments([...departments, department]);
-    setNewDepartment({ name: "", code: "", head: "" });
-    
-    toast({
-      title: "Department Added",
-      description: `${department.name} has been added successfully.`,
+    const result = await addDepartment({
+      name: newDepartment.name,
+      code: newDepartment.code,
+      head: newDepartment.head || undefined,
     });
+
+    if (result.success) {
+      setNewDepartment({ name: "", code: "", head: "" });
+    }
   };
 
-  const removeDepartment = (id) => {
-    setDepartments(departments.filter(dept => dept.id !== id));
-    toast({
-      title: "Department Removed",
-      description: "Department has been removed successfully.",
-    });
-  };
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -88,7 +82,7 @@ export const DepartmentSetup = ({ departments, setDepartments }) => {
               />
             </div>
           </div>
-          <Button onClick={addDepartment} className="w-full md:w-auto">
+          <Button onClick={handleAddDepartment} className="w-full md:w-auto">
             <Plus className="h-4 w-4 mr-2" />
             Add Department
           </Button>

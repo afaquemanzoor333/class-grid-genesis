@@ -1,27 +1,37 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Download, RefreshCw, Calendar, Users, BookOpen, Clock, Plus, Settings } from "lucide-react";
+import { ArrowLeft, Download, RefreshCw, Calendar, Users, BookOpen, Clock, Plus, Settings, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { DepartmentSetup } from "@/components/DepartmentSetup";
 import { BatchManager } from "@/components/BatchManager";
 import { SubjectManager } from "@/components/SubjectManager";
 import { TimetableGenerator } from "@/components/TimetableGenerator";
 import { GeneratedTimetable } from "@/components/GeneratedTimetable";
 import { useToast } from "@/hooks/use-toast";
+import { useDepartments } from "@/hooks/useDepartments";
+import { useBatches } from "@/hooks/useBatches";
+import { useSubjects } from "@/hooks/useSubjects";
 
 const Generator = () => {
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("departments");
-  const [departments, setDepartments] = useState([]);
-  const [batches, setBatches] = useState([]);
-  const [subjects, setSubjects] = useState([]);
   const [generatedTimetable, setGeneratedTimetable] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
+
+  const { departments } = useDepartments();
+  const { batches } = useBatches();
+  const { subjects } = useSubjects();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
 
   const handleGenerate = async () => {
     if (departments.length === 0 || batches.length === 0 || subjects.length === 0) {
@@ -113,6 +123,7 @@ const Generator = () => {
             </div>
             
             <div className="flex items-center space-x-3">
+              <span className="text-sm text-gray-600">Welcome, {user?.email}</span>
               <Button
                 onClick={handleGenerate}
                 disabled={isGenerating}
@@ -137,6 +148,11 @@ const Generator = () => {
                   Export
                 </Button>
               )}
+
+              <Button variant="ghost" onClick={handleSignOut}>
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign Out
+              </Button>
             </div>
           </div>
         </div>
@@ -200,26 +216,15 @@ const Generator = () => {
               </TabsList>
 
               <TabsContent value="departments" className="space-y-6">
-                <DepartmentSetup 
-                  departments={departments} 
-                  setDepartments={setDepartments} 
-                />
+                <DepartmentSetup />
               </TabsContent>
 
               <TabsContent value="batches" className="space-y-6">
-                <BatchManager 
-                  batches={batches} 
-                  setBatches={setBatches}
-                  departments={departments}
-                />
+                <BatchManager />
               </TabsContent>
 
               <TabsContent value="subjects" className="space-y-6">
-                <SubjectManager 
-                  subjects={subjects} 
-                  setSubjects={setSubjects}
-                  departments={departments}
-                />
+                <SubjectManager />
               </TabsContent>
 
               <TabsContent value="generate" className="space-y-6">

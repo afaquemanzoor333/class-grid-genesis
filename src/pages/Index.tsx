@@ -1,13 +1,14 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, Users, BookOpen, Brain, CheckCircle, ArrowRight, Zap } from "lucide-react";
+import { Calendar, Clock, Users, BookOpen, Brain, CheckCircle, ArrowRight, Zap, LogIn } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [isHovered, setIsHovered] = useState(false);
 
   const features = [
@@ -43,6 +44,14 @@ const Index = () => {
     }
   ];
 
+  const handleGetStarted = () => {
+    if (user) {
+      navigate("/generator");
+    } else {
+      navigate("/auth");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Navigation */}
@@ -55,13 +64,25 @@ const Index = () => {
                 EduScheduler
               </span>
             </div>
-            <Button 
-              onClick={() => navigate("/generator")}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all duration-300"
-            >
-              Get Started
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+            <div className="flex items-center space-x-4">
+              {user ? (
+                <Button onClick={() => navigate("/generator")} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                  Dashboard
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              ) : (
+                <>
+                  <Button variant="ghost" onClick={() => navigate("/auth")}>
+                    <LogIn className="mr-2 h-4 w-4" />
+                    Sign In
+                  </Button>
+                  <Button onClick={() => navigate("/auth")} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                    Get Started
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </nav>
@@ -87,12 +108,12 @@ const Index = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
             <Button
               size="lg"
-              onClick={() => navigate("/generator")}
+              onClick={handleGetStarted}
               className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
             >
-              Start Generating
+              {user ? 'Go to Dashboard' : 'Start Generating'}
               <ArrowRight className={`ml-2 h-5 w-5 transition-transform duration-300 ${isHovered ? 'translate-x-1' : ''}`} />
             </Button>
             
@@ -217,10 +238,10 @@ const Index = () => {
           </p>
           <Button
             size="lg"
-            onClick={() => navigate("/generator")}
+            onClick={handleGetStarted}
             className="bg-white text-blue-600 hover:bg-gray-100 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
           >
-            Start Creating Timetables
+            {user ? 'Go to Dashboard' : 'Start Creating Timetables'}
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
         </div>
