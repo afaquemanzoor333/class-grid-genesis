@@ -7,8 +7,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Plus, Trash2, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useBatches } from "@/hooks/useBatches";
 
-export const BatchManager = ({ batches, setBatches, departments }) => {
+export const BatchManager = ({ departments }) => {
   const [newBatch, setNewBatch] = useState({
     name: "",
     semester: "",
@@ -17,8 +18,9 @@ export const BatchManager = ({ batches, setBatches, departments }) => {
     section: ""
   });
   const { toast } = useToast();
+  const { batches, addBatch, removeBatch, loading } = useBatches();
 
-  const addBatch = () => {
+  const handleAddBatch = async () => {
     if (!newBatch.name || !newBatch.semester || !newBatch.department) {
       toast({
         title: "Missing Information",
@@ -28,27 +30,23 @@ export const BatchManager = ({ batches, setBatches, departments }) => {
       return;
     }
 
-    const batch = {
-      id: Date.now(),
-      ...newBatch,
-      departmentName: departments.find(d => d.id === newBatch.department)?.name || ""
+    const batchData = {
+      name: newBatch.name,
+      semester: parseInt(newBatch.semester),
+      department_id: newBatch.department,
+      student_count: newBatch.strength ? parseInt(newBatch.strength) : 0,
+      year: new Date().getFullYear()
     };
 
-    setBatches([...batches, batch]);
-    setNewBatch({ name: "", semester: "", department: "", strength: "", section: "" });
+    const result = await addBatch(batchData);
     
-    toast({
-      title: "Batch Added",
-      description: `${batch.name} has been added successfully.`,
-    });
+    if (result.success) {
+      setNewBatch({ name: "", semester: "", department: "", strength: "", section: "" });
+    }
   };
 
-  const removeBatch = (id) => {
-    setBatches(batches.filter(batch => batch.id !== id));
-    toast({
-      title: "Batch Removed",
-      description: "Batch has been removed successfully.",
-    });
+  const handleRemoveBatch = async (id) => {
+    await removeBatch(id);
   };
 
   if (departments.length === 0) {
@@ -60,6 +58,17 @@ export const BatchManager = ({ batches, setBatches, departments }) => {
           <p className="text-gray-500">
             Please add departments first before creating batches
           </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="py-12 text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="text-gray-500 mt-4">Loading batches...</p>
         </CardContent>
       </Card>
     );
@@ -116,7 +125,7 @@ export const BatchManager = ({ batches, setBatches, departments }) => {
                 </SelectTrigger>
                 <SelectContent>
                   {departments.map(dept => (
-                    <SelectItem key={dept.id} value={dept.id.toString()}>
+                    <SelectItem key={dept.id} value={dept.id}>
                       {dept.name} ({dept.code})
                     </SelectItem>
                   ))}
@@ -146,7 +155,7 @@ export const BatchManager = ({ batches, setBatches, departments }) => {
             </div>
           </div>
           
-          <Button onClick={addBatch} className="w-full md:w-auto">
+          <Button onClick={handleAddBatch} className="w-full md:w-auto">
             <Plus className="h-4 w-4 mr-2" />
             Add Batch
           </Button>
@@ -176,17 +185,12 @@ export const BatchManager = ({ batches, setBatches, departments }) => {
                         <Badge variant="secondary">
                           Sem {batch.semester}
                         </Badge>
-                        {batch.section && (
-                          <Badge variant="outline">
-                            Sec {batch.section}
-                          </Badge>
-                        )}
                       </div>
                     </div>
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => removeBatch(batch.id)}
+                      onClick={() => handleRemoveBatch(batch.id)}
                       className="text-red-500 hover:text-red-700 hover:bg-red-50"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -194,8 +198,8 @@ export const BatchManager = ({ batches, setBatches, departments }) => {
                   </div>
                   
                   <div className="text-sm text-gray-600 space-y-1">
-                    <p>Department: {batch.departmentName}</p>
-                    {batch.strength && <p>Strength: {batch.strength} students</p>}
+                    <p>Department: {batch.departments?.name || 'Unknown'}</p>
+                    {batch.student_count > 0 && <p>Strength: {batch.student_count} students</p>}
                   </div>
                 </div>
               ))}

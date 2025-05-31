@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,20 +26,8 @@ const Generator = () => {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const { departments } = useDepartments();
-  const { batches, addBatch, removeBatch } = useBatches();
-  const { subjects, addSubject, removeSubject } = useSubjects();
-
-  // Create setter functions for BatchManager
-  const setBatches = (newBatches: any) => {
-    // This is handled by the useBatches hook internally
-    console.log("setBatches called with:", newBatches);
-  };
-
-  // Create setter functions for SubjectManager  
-  const setSubjects = (newSubjects: any) => {
-    // This is handled by the useSubjects hook internally
-    console.log("setSubjects called with:", newSubjects);
-  };
+  const { batches } = useBatches();
+  const { subjects } = useSubjects();
 
   const handleSignOut = async () => {
     await signOut();
@@ -130,7 +119,7 @@ const Generator = () => {
               </Button>
               <div className="flex items-center space-x-2">
                 <Calendar className="h-6 w-6 text-blue-600" />
-                <span className="text-lg font-semibold">SMIU Timetable Generator</span>
+                <span className="text-lg font-semibold">SMIU Scheduler</span>
               </div>
             </div>
             
@@ -232,19 +221,11 @@ const Generator = () => {
               </TabsContent>
 
               <TabsContent value="batches" className="space-y-6">
-                <BatchManager 
-                  batches={batches}
-                  setBatches={setBatches}
-                  departments={departments}
-                />
+                <BatchManager departments={departments} />
               </TabsContent>
 
               <TabsContent value="subjects" className="space-y-6">
-                <SubjectManager 
-                  subjects={subjects}
-                  setSubjects={setSubjects}
-                  departments={departments}
-                />
+                <SubjectManager departments={departments} />
               </TabsContent>
 
               <TabsContent value="generate" className="space-y-6">
