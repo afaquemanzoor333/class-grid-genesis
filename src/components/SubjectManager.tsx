@@ -7,58 +7,57 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Plus, Trash2, BookOpen } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useSubjects } from "@/hooks/useSubjects";
+import { useBatches } from "@/hooks/useBatches";
 
-export const SubjectManager = ({ subjects, setSubjects, departments }) => {
+export const SubjectManager = ({ departments }) => {
   const [newSubject, setNewSubject] = useState({
     name: "",
     code: "",
     faculty: "",
-    department: "",
-    credits: "",
-    type: "",
-    hoursPerWeek: ""
+    batch: "",
+    hoursPerWeek: "",
+    type: ""
   });
   const { toast } = useToast();
+  const { subjects, addSubject, removeSubject, loading } = useSubjects();
+  const { batches } = useBatches();
 
-  const addSubject = () => {
-    if (!newSubject.name || !newSubject.code || !newSubject.faculty || !newSubject.department) {
+  const handleAddSubject = async () => {
+    if (!newSubject.name || !newSubject.code || !newSubject.faculty || !newSubject.batch) {
       toast({
         title: "Missing Information",
-        description: "Please fill in subject name, code, faculty, and department.",
+        description: "Please fill in subject name, code, faculty, and batch.",
         variant: "destructive",
       });
       return;
     }
 
-    const subject = {
-      id: Date.now(),
-      ...newSubject,
-      departmentName: departments.find(d => d.id === newSubject.department)?.name || ""
+    const subjectData = {
+      name: newSubject.name,
+      code: newSubject.code,
+      faculty: newSubject.faculty,
+      batch_id: newSubject.batch,
+      hours_per_week: newSubject.hoursPerWeek ? parseInt(newSubject.hoursPerWeek) : 0,
+      subject_type: newSubject.type as 'theory' | 'practical' | 'lab' || 'theory'
     };
 
-    setSubjects([...subjects, subject]);
-    setNewSubject({
-      name: "",
-      code: "",
-      faculty: "",
-      department: "",
-      credits: "",
-      type: "",
-      hoursPerWeek: ""
-    });
+    const result = await addSubject(subjectData);
     
-    toast({
-      title: "Subject Added",
-      description: `${subject.name} has been added successfully.`,
-    });
+    if (result.success) {
+      setNewSubject({
+        name: "",
+        code: "",
+        faculty: "",
+        batch: "",
+        hoursPerWeek: "",
+        type: ""
+      });
+    }
   };
 
-  const removeSubject = (id) => {
-    setSubjects(subjects.filter(subject => subject.id !== id));
-    toast({
-      title: "Subject Removed",
-      description: "Subject has been removed successfully.",
-    });
+  const handleRemoveSubject = async (id) => {
+    await removeSubject(id);
   };
 
   if (departments.length === 0) {
@@ -70,6 +69,31 @@ export const SubjectManager = ({ subjects, setSubjects, departments }) => {
           <p className="text-gray-500">
             Please add departments first before creating subjects
           </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (batches.length === 0) {
+    return (
+      <Card className="border-dashed border-2 border-gray-300">
+        <CardContent className="py-12 text-center">
+          <BookOpen className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+          <h3 className="text-lg font-semibold text-gray-600 mb-2">No Batches Available</h3>
+          <p className="text-gray-500">
+            Please add batches first before creating subjects
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="py-12 text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="text-gray-500 mt-4">Loading subjects...</p>
         </CardContent>
       </Card>
     );
@@ -96,7 +120,7 @@ export const SubjectManager = ({ subjects, setSubjects, departments }) => {
               <Label htmlFor="subject-name">Subject Name *</Label>
               <Input
                 id="subject-name"
-                placeholder="Data Structures"
+                placeholder="Programming Fundamentals"
                 value={newSubject.name}
                 onChange={(e) => setNewSubject({...newSubject, name: e.target.value})}
               />
@@ -106,7 +130,7 @@ export const SubjectManager = ({ subjects, setSubjects, departments }) => {
               <Label htmlFor="subject-code">Subject Code *</Label>
               <Input
                 id="subject-code"
-                placeholder="CS201"
+                placeholder="CS101"
                 value={newSubject.code}
                 onChange={(e) => setNewSubject({...newSubject, code: e.target.value})}
               />
@@ -116,37 +140,26 @@ export const SubjectManager = ({ subjects, setSubjects, departments }) => {
               <Label htmlFor="faculty">Faculty Name *</Label>
               <Input
                 id="faculty"
-                placeholder="Dr. Jane Doe"
+                placeholder="Dr. Ahmad Ali"
                 value={newSubject.faculty}
                 onChange={(e) => setNewSubject({...newSubject, faculty: e.target.value})}
               />
             </div>
 
             <div>
-              <Label htmlFor="dept-select">Department *</Label>
-              <Select value={newSubject.department} onValueChange={(value) => setNewSubject({...newSubject, department: value})}>
+              <Label htmlFor="batch-select">Batch *</Label>
+              <Select value={newSubject.batch} onValueChange={(value) => setNewSubject({...newSubject, batch: value})}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select department" />
+                  <SelectValue placeholder="Select batch" />
                 </SelectTrigger>
                 <SelectContent>
-                  {departments.map(dept => (
-                    <SelectItem key={dept.id} value={dept.id.toString()}>
-                      {dept.name} ({dept.code})
+                  {batches.map(batch => (
+                    <SelectItem key={batch.id} value={batch.id}>
+                      {batch.name} - {batch.departments?.name || 'Unknown Dept'}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="credits">Credits</Label>
-              <Input
-                id="credits"
-                type="number"
-                placeholder="3"
-                value={newSubject.credits}
-                onChange={(e) => setNewSubject({...newSubject, credits: e.target.value})}
-              />
             </div>
 
             <div>
@@ -159,7 +172,6 @@ export const SubjectManager = ({ subjects, setSubjects, departments }) => {
                   <SelectItem value="theory">Theory</SelectItem>
                   <SelectItem value="practical">Practical</SelectItem>
                   <SelectItem value="lab">Lab</SelectItem>
-                  <SelectItem value="tutorial">Tutorial</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -176,7 +188,7 @@ export const SubjectManager = ({ subjects, setSubjects, departments }) => {
             </div>
           </div>
           
-          <Button onClick={addSubject} className="w-full md:w-auto">
+          <Button onClick={handleAddSubject} className="w-full md:w-auto">
             <Plus className="h-4 w-4 mr-2" />
             Add Subject
           </Button>
@@ -209,7 +221,7 @@ export const SubjectManager = ({ subjects, setSubjects, departments }) => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => removeSubject(subject.id)}
+                      onClick={() => handleRemoveSubject(subject.id)}
                       className="text-red-500 hover:text-red-700 hover:bg-red-50"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -218,14 +230,14 @@ export const SubjectManager = ({ subjects, setSubjects, departments }) => {
                   
                   <div className="text-sm text-gray-600 space-y-1">
                     <p><strong>Faculty:</strong> {subject.faculty}</p>
-                    <p><strong>Department:</strong> {subject.departmentName}</p>
-                    {subject.credits && <p><strong>Credits:</strong> {subject.credits}</p>}
-                    {subject.type && (
+                    <p><strong>Batch:</strong> {subject.batches?.name || 'Unknown'}</p>
+                    <p><strong>Department:</strong> {subject.batches?.departments?.name || 'Unknown'}</p>
+                    {subject.hours_per_week > 0 && <p><strong>Hours/Week:</strong> {subject.hours_per_week}</p>}
+                    {subject.subject_type && (
                       <Badge variant="outline" className="mt-2">
-                        {subject.type}
+                        {subject.subject_type}
                       </Badge>
                     )}
-                    {subject.hoursPerWeek && <p><strong>Hours/Week:</strong> {subject.hoursPerWeek}</p>}
                   </div>
                 </div>
               ))}
