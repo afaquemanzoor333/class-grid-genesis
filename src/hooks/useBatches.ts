@@ -64,7 +64,12 @@ export const useBatches = () => {
         .single();
 
       if (error) throw error;
+      
+      // Immediately add to state and also trigger a full refresh
       setBatches(prev => [data, ...prev]);
+      
+      // Trigger a brief delay then refetch to ensure consistency
+      setTimeout(fetchBatches, 100);
       
       toast({
         title: 'Batch Added',

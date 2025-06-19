@@ -46,7 +46,12 @@ export const useDepartments = () => {
         .single();
 
       if (error) throw error;
+      
+      // Immediately add to state and also trigger a full refresh
       setDepartments(prev => [data, ...prev]);
+      
+      // Trigger a brief delay then refetch to ensure consistency
+      setTimeout(fetchDepartments, 100);
       
       toast({
         title: 'Department Added',

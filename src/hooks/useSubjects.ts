@@ -84,7 +84,12 @@ export const useSubjects = () => {
         ...data,
         subject_type: data.subject_type as 'theory' | 'practical' | 'lab'
       };
+      
+      // Immediately add to state and also trigger a full refresh
       setSubjects(prev => [typedData, ...prev]);
+      
+      // Trigger a brief delay then refetch to ensure consistency
+      setTimeout(fetchSubjects, 100);
       
       toast({
         title: 'Subject Added',
